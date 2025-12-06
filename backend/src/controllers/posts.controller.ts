@@ -1,3 +1,5 @@
+//src/controllers/posts.controller.ts
+
 import { Request, Response } from 'express';
 import { createSupabaseClient } from '../lib/supabase';
 
