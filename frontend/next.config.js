@@ -6,4 +6,5 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+// EKSPOR PAKE COMMONJS (BUKAN ES MODULES)
+module.exports = nextConfig;
