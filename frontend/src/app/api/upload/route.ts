@@ -1,5 +1,6 @@
+// src/app/api/upload/route.ts
 import { NextRequest } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
@@ -14,6 +15,8 @@ export async function POST(request: NextRequest) {
   const buffer = Buffer.from(bytes);
   const fileName = `${Date.now()}-${file.name}`;
 
+  const supabase = createClient();
+
   const { data, error } = await supabase.storage
     .from(bucket)
     .upload(fileName, buffer, {
@@ -25,9 +28,8 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 
-  // ✅ Perbaikan: sesuai struktur respons Supabase
-  const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
-  const publicUrl = urlData.publicUrl;
+  // ✅ Perbaikan: akses publicUrl dari data, bukan urlData
+  const publicUrl = supabase.storage.from(bucket).getPublicUrl(data.path).data.publicUrl;
 
   return Response.json({ url: publicUrl });
 }

@@ -1,8 +1,9 @@
 // src/app/blog/[slug]/page.tsx
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 
 export async function generateStaticParams() {
+  const supabase = createClient(); // ✅ buat client
   const { data, error } = await supabase.from('posts').select('slug');
   if (error) return [];
   return data.map(post => ({ slug: post.slug }));
@@ -10,13 +11,16 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const supabase = createClient(); // ✅ buat client
   const { data: post } = await supabase
     .from('posts')
     .select('title, excerpt, image_url')
     .eq('slug', slug)
     .single();
 
-  if (!post) return { title: 'Artikel Tidak Ditemukan' };
+  if (!post) {
+    return { title: 'Artikel Tidak Ditemukan' };
+  }
 
   return {
     title: post.title,
@@ -29,14 +33,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const supabase = createClient(); // ✅ buat client
   const { data: post } = await supabase
     .from('posts')
     .select('*')
     .eq('slug', slug)
     .single();
 
-  // ✅ Cek jika post tidak ditemukan
-  if (!post) notFound();
+  if (!post) {
+    notFound();
+  }
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
