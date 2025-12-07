@@ -1,10 +1,9 @@
 'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const [password, setPassword] = useState('');
+  const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -14,52 +13,45 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+
+    let data;
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
+      data = await res.json();
+    } catch {
+      setError('Invalid response from server');
+      setLoading(false);
+      return;
+    }
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Login failed');
-      } else {
-        // ✅ redirect ke dashboard admin
-        router.push('/admin/posts');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
+    if (!res.ok) {
+      setError(data?.error || 'Login failed');
+    } else {
+      router.push('/admin/posts');
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form onSubmit={handleLogin} className="space-y-4 w-80 p-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center">Admin Login</h2>
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border p-2 rounded mt-1"
-            placeholder="Enter admin password"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-    </div>
+    <form onSubmit={handleLogin} className="space-y-4 w-80 p-6 bg-white rounded shadow-md">
+      <h2 className="text-2xl font-bold text-center">Admin Login</h2>
+      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+      <input
+        type="password"
+        value={token}
+        onChange={(e) => setToken(e.target.value)}
+        placeholder="Enter admin token"
+        className="w-full border p-2 rounded"
+        required
+      />
+      <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded">
+        {loading ? 'Logging in...' : 'Login'}
+      </button>
+    </form>
   );
 }
