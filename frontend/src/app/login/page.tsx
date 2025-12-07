@@ -15,7 +15,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password }),
@@ -23,12 +23,12 @@ export default function LoginPage() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error);
-
-      // simpan token
-      localStorage.setItem('admin_token', data.token);
-
-      router.push('/admin/posts');
+      if (!res.ok) {
+        setError(data.error || 'Login failed');
+      } else {
+        // ✅ redirect ke dashboard admin
+        router.push('/admin/posts');
+      }
     } catch (err: any) {
       setError(err.message || 'Login failed');
     }
@@ -41,16 +41,17 @@ export default function LoginPage() {
       <form onSubmit={handleLogin} className="space-y-4 w-80 p-6 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center">Admin Login</h2>
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border p-2 rounded mt-1"
-          placeholder="Admin password"
-          required
-        />
-
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full border p-2 rounded mt-1"
+            placeholder="Enter admin password"
+            required
+          />
+        </div>
         <button
           type="submit"
           disabled={loading}
