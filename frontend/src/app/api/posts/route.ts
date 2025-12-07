@@ -1,9 +1,8 @@
-// src/app/api/posts/route.ts
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
-  const supabase = createClient(); // note: no await
+  const supabase = createClient();
 
   const { data, error } = await supabase
     .from("posts")
@@ -12,6 +11,7 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   if (error) {
+    console.error("Fetch posts error:", error);
     return NextResponse.json(
       { error: "Failed to fetch posts" },
       { status: 500 }
@@ -22,7 +22,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient(); // no await
+  const supabase = createClient();
 
   const body = await req.json();
   const { title, slug, type, content, status = "draft" } = body;
@@ -31,6 +31,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "Missing required fields" },
       { status: 400 }
+    );
+  }
+
+  // proteksi minimal agar tidak jadi celah publik
+  const apiKey = req.headers.get("x-admin-key");
+
+  if (apiKey !== process.env.ADMIN_API_TOKEN) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
     );
   }
 
@@ -43,7 +53,6 @@ export async function POST(req: NextRequest) {
         type,
         content,
         status,
-        // author_id tidak perlu jika RLS hanya berdasarkan email
       },
     ])
     .select()

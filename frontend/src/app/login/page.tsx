@@ -1,9 +1,7 @@
-// src/app/login/page.tsx
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');
@@ -16,16 +14,23 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: 'wito.forbes@gmail.com',
-      password,
-    });
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      // ✅ Redirect ke dashboard admin setelah login sukses
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      // simpan token
+      localStorage.setItem('admin_token', data.token);
+
       router.push('/admin/posts');
+    } catch (err: any) {
+      setError(err.message || 'Login failed');
     }
 
     setLoading(false);
@@ -36,32 +41,16 @@ export default function LoginPage() {
       <form onSubmit={handleLogin} className="space-y-4 w-80 p-6 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center">Admin Login</h2>
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value="wito.forbes@gmail.com"
-            readOnly
-            className="w-full border p-2 rounded mt-1 bg-gray-100 cursor-not-allowed"
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border p-2 rounded mt-1"
-            placeholder="••••••••"
-            required
-          />
-        </div>
+
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border p-2 rounded mt-1"
+          placeholder="Admin password"
+          required
+        />
+
         <button
           type="submit"
           disabled={loading}
