@@ -6,21 +6,36 @@ import postsRoute from './routes/posts';
 dotenv.config();
 
 const app = express();
+
+/**
+ * Middleware
+ */
 app.use(cors());
 app.use(express.json());
 
-// Routes
+/**
+ * Routes
+ */
 app.use('/api/posts', postsRoute);
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+// Kalau mau path admin juga aktif
+app.use('/api/admin/posts', postsRoute);
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// === MODE DEPLOY / SERVERLESS VERCEL ===
-// export default app supaya bisa dipakai sebagai Serverless Function
+/**
+ * Export untuk Vercel (Serverless Function)
+ */
 export default app;
 
-// === MODE LOKAL ===
+/**
+ * Mode lokal (hanya jalan saat dev di local machine)
+ */
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
