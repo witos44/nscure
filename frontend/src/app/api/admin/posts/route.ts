@@ -2,13 +2,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// ✅ Jangan inisialisasi di luar fungsi
+// const supabase = createClient(...); // ❌ ini dijalankan saat build
 
-export async function GET(req: NextRequest) {
+function getSupabaseClient() {
+  // ✅ inisialisasi hanya saat runtime
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
+
+export async function GET() {
   try {
+    const supabase = getSupabaseClient(); // ✅ dipanggil saat runtime
     const { data, error } = await supabase
       .from('posts')
       .select('*')
@@ -36,6 +43,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const supabase = getSupabaseClient(); // ✅ dipanggil saat runtime
     const today = new Date().toISOString().split('T')[0];
     const { data, error } = await supabase
       .from('posts')
