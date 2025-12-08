@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -23,19 +24,35 @@ export default function AdminLogin() {
       return;
     }
 
-    router.push('/admin/posts'); // redirect ke dashboard
+    // ✅ Simpan status login di localStorage
+    localStorage.setItem('admin_logged_in', 'true');
+
+    // ✅ Popup
+    alert('✅ Login Success!');
+
+    // ✅ Redirect
+    router.push('/admin/posts');
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <input
-        type="password"
-        value={token}
-        onChange={(e) => setToken(e.target.value)}
-        placeholder="ADMIN_API_TOKEN"
-      />
-      <button type="submit">Login</button>
-      {error && <p>{error}</p>}
-    </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <form onSubmit={handleLogin} className="space-y-4 w-80 p-6 bg-white rounded shadow-md">
+        <h2 className="text-2xl font-bold text-center">Admin Login</h2>
+        <input
+          type="password"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          placeholder="ADMIN_API_TOKEN"
+          className="w-full border p-2 rounded"
+        />
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+        >
+          Login
+        </button>
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+      </form>
+    </div>
   );
 }

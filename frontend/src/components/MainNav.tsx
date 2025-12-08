@@ -1,4 +1,4 @@
-// src/app/layout.tsx atau MainNav.tsx — sesuaikan dengan strukturmu
+// src/components/MainNav.tsx
 "use client";
 
 import Link from "next/link";
@@ -8,14 +8,22 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ChevronDown } from "lucide-react";
+import { useEffect, useState } from 'react';
 
 export default function MainNav() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('admin_logged_in');
+    if (token) setIsLoggedIn(true);
+  }, []);
+
   return (
     <nav className="w-full border-b bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Logo */}
-        <Link href="/" className="text-xl font-semibold">
-          Net Scure
+        <Link href="/" className="flex items-center">
+          <img src="/logonss.svg" alt="SecureRemote" className="h-8 w-auto" />
         </Link>
 
         <div className="flex items-center space-x-4">
@@ -84,19 +92,16 @@ export default function MainNav() {
             </PopoverContent>
           </Popover>
 
-          {/* === MENU LOGIN DITAMBAHKAN DI SINI === */}
-          <Link href="/login" className="text-sm font-medium hover:underline">
-            Login
-          </Link>
-
-          {/* ❌ HAPUS Resources dan Blog dari navbar */}
-          {/* <Link href="/resources" className="text-sm font-medium hover:underline">
-            Resources
-          </Link>
-          <Link href="/blog" className="text-sm font-medium hover:underline">
-            Blog
-          </Link> */}
-
+          {/* === MENU LOGIN / ADMIN === */}
+          {isLoggedIn ? (
+            <span className="text-sm font-medium">
+              👤 Admin
+            </span>
+          ) : (
+            <Link href="/login" className="text-sm font-medium hover:underline">
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </nav>

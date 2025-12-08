@@ -11,8 +11,14 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SecureRemote",
+  title: "NetSecure",
   description: "Security tools & remote work guides.",
+  icons: {
+  icon: [
+    { rel: 'icon', url: '/favicon.ico' },
+    { rel: 'icon', type: 'image/png', sizes: '32x32', url: '/favicon-32x32.png' },
+  ],
+  }
 };
 
 export default function RootLayout({

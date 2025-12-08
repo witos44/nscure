@@ -48,7 +48,7 @@ export default function AdminPostsPage() {
       const res = await fetch(`/api/admin/posts/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...posts.find(p => p.id === id), status: newStatus }),
+        body: JSON.stringify({ status: newStatus }), // ✅ hanya kirim status yang berubah
       });
 
       if (res.ok) {
@@ -73,93 +73,109 @@ export default function AdminPostsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        Loading...
+      <div className="container mx-auto py-10 px-4">
+        <Card>
+          <CardContent className="py-10 text-center">Loading...</CardContent>
+        </Card>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6">
-        <div className="bg-red-50 text-red-800 p-4 rounded">
-          {error}
-        </div>
+      <div className="container mx-auto py-10 px-4">
+        <Card className="bg-red-50 border-red-200">
+          <CardContent className="py-6 text-red-800 text-center">
+            {error}
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>All Posts</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {posts.length > 0 ? (
-              posts.map(post => (
-                <TableRow key={post.id}>
-                  <TableCell className="font-medium">{post.title}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={post.type === 'blog' ? 'default' : 'secondary'}
-                      className={`capitalize ${post.type === 'blog' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`}
-                    >
-                      {post.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={post.status === 'published' ? 'outline' : 'secondary'}
-                      className={`capitalize ${post.status === 'published' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
-                    >
-                      {post.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{post.date}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/admin/posts/${post.id}/edit`}>Edit</Link>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePublish(post.id, post.status)}
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex justify-between items-center mb-6">
+        <CardTitle className="text-2xl">All Posts</CardTitle>
+        <Button asChild>
+          <Link href="/admin/posts/new">+ New Post</Link>
+        </Button>
+      </div>
+
+      <Card>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {posts.length > 0 ? (
+                posts.map(post => (
+                  <TableRow key={post.id}>
+                    <TableCell className="font-medium">{post.title}</TableCell>
+                    <TableCell>
+                      <Badge
+                        className={`capitalize ${
+                          post.type === 'blog'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-purple-100 text-purple-800'
+                        }`}
                       >
-                        {post.status === 'draft' ? 'Publish' : 'Unpublish'}
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(post.id)}
+                        {post.type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        className={`capitalize ${
+                          post.status === 'published'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}
                       >
-                        Delete
-                      </Button>
-                    </div>
+                        {post.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{post.date}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/admin/posts/${post.id}/edit`}>Edit</Link>
+                        </Button>
+                        <Button
+                          variant={post.status === 'published' ? 'outline' : 'default'}
+                          size="sm"
+                          onClick={() => handlePublish(post.id, post.status)}
+                        >
+                          {post.status === 'draft' ? 'Publish' : 'Unpublish'}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(post.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-10">
+                    No posts found.
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-10">
-                  No posts found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
