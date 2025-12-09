@@ -7,8 +7,13 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Debug: pastikan layout ter-load
+  if (typeof window !== 'undefined') {
+    console.log('AdminLayout loaded');
+  }
+
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 border-4 border-red-500">
       {/* Sidebar */}
       <Sidebar />
 
@@ -18,7 +23,7 @@ export default function AdminLayout({
         <Header />
 
         {/* Page Content */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto border-2 border-blue-500">
           {children}
         </main>
       </div>
