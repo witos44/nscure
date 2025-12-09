@@ -1,49 +1,55 @@
 // src/app/[category]/page.tsx
-import { createClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
-import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
 
 const CATEGORY_MAP: Record<string, string> = {
   'security-tools': 'Security Tools',
   'work-from-anywhere': 'Work From Anywhere',
-  deals: 'Deals',
-  guides: 'Guides',
-  reviews: 'Reviews',
-}
-
-type Props = {
-  params: {
-    category: string
-  }
-}
+  'deals': 'Deals',
+  'guides': 'Guides',
+  'reviews': 'Reviews',
+};
 
 export async function generateStaticParams() {
   return Object.keys(CATEGORY_MAP).map((slug) => ({
     category: slug,
-  }))
+  }));
 }
 
-export async function generateMetadata({ params }: Props) {
-  const { category } = params
-  const title = CATEGORY_MAP[category] || 'Category'
-  return { title: `${title} | SecureRemote` }
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  const { category } = await params;
+
+  const title = CATEGORY_MAP[category] || 'Category';
+
+  return {
+    title: `${title} | SecureRemote`,
+  };
 }
 
-export default async function CategoryPage({ params }: Props) {
-  const { category } = params
+export default async function CategoryPage({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  const { category } = await params;
 
   if (!CATEGORY_MAP[category]) {
-    notFound()
+    notFound();
   }
 
-  const supabase = createClient()
+  const supabase = createClient();
 
   const { data: posts } = await supabase
     .from('posts')
     .select('*')
     .eq('category', category)
     .eq('status', 'published')
-    .order('date', { ascending: false })
+    .order('date', { ascending: false });
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -64,7 +70,6 @@ export default async function CategoryPage({ params }: Props) {
               >
                 {post.title}
               </Link>
-
               <p className="text-gray-600 mt-2">{post.excerpt}</p>
               <p className="text-sm text-gray-500 mt-2">
                 {new Date(post.date).toLocaleDateString()}
@@ -76,5 +81,5 @@ export default async function CategoryPage({ params }: Props) {
         )}
       </div>
     </div>
-  )
+  );
 }
