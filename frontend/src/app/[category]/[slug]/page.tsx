@@ -2,12 +2,38 @@
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string; slug: string }>;
+}) {
+  const { category, slug } = await params;
+
+  const supabase = createClient();
+
+  const { data: post } = await supabase
+    .from('posts')
+    .select('title, excerpt')
+    .eq('category', category)
+    .eq('slug', slug)
+    .single();
+
+  if (!post) {
+    return { title: 'Not Found' };
+  }
+
+  return {
+    title: `${post.title} | SecureRemote`,
+    description: post.excerpt ?? '',
+  };
+}
+
 export default async function PostDetail({
   params,
 }: {
-  params: { category: string; slug: string };
+  params: Promise<{ category: string; slug: string }>;
 }) {
-  const { category, slug } = params;
+  const { category, slug } = await params;
 
   const supabase = createClient();
 
@@ -26,6 +52,7 @@ export default async function PostDetail({
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+
       <p className="text-gray-600 mb-6">
         {new Date(post.date).toLocaleDateString()}
       </p>
