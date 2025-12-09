@@ -8,7 +8,7 @@ export default function Footer() {
         {/* Brand */}
         <div>
           <Link href="/" className="flex items-center">
-            <img src="/logonss.svg" alt="SecureRemote" className="h-8 w-auto" />
+            <img src="/next.svg" alt="SecureRemote" className="h-8 w-auto" />
           </Link>
           <p className="text-sm text-gray-600">
             Security tools, remote job guides, and trusted reviews for working safely from anywhere.

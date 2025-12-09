@@ -23,7 +23,7 @@ export default function MainNav() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-          <img src="/logonss.svg" alt="SecureRemote" className="h-8 w-auto" />
+          <img src="/next.svg" alt="SecureRemote" className="h-8 w-auto" />
         </Link>
 
         <div className="flex items-center space-x-4">
