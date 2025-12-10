@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/popover";
 import { ChevronDown } from "lucide-react";
 
-// ——— DATA NAVIGASI (SATU-SATUNYA SUMBER KEBAENARAN) ———
 const NAV_GROUPS = [
   {
     title: "Security Tools",
@@ -67,7 +66,6 @@ const NAV_GROUPS = [
   },
 ];
 
-// ——— DESKTOP MENU ITEM ———
 function DesktopMenuItem({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
@@ -79,44 +77,6 @@ function DesktopMenuItem({ href, children }: { href: string; children: React.Rea
   );
 }
 
-// ——— MOBILE MENU ITEM ———
-function MobileMenuItem({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
-  return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className="block py-2.5 text-base font-medium text-gray-900 transition hover:bg-gray-50 rounded-md px-2"
-    >
-      {children}
-    </Link>
-  );
-}
-
-// ——— MOBILE SUBMENU ———
-function MobileSubmenu({
-  title,
-  items,
-  onItemClick,
-}: {
-  title: string;
-  items: { href: string; label: string }[];
-  onItemClick?: () => void;
-}) {
-  return (
-    <div className="border-b border-gray-100 pb-5 last:border-0 last:pb-0">
-      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{title}</h3>
-      <div className="space-y-1">
-        {items.map((item) => (
-          <MobileMenuItem key={item.href} href={item.href} onClick={onItemClick}>
-            {item.label}
-          </MobileMenuItem>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ——— DESKTOP MENU GROUP DENGAN POPOVER ———
 function DesktopMenuGroup({ group }: { group: (typeof NAV_GROUPS)[0] }) {
   return (
     <Popover>
@@ -140,7 +100,42 @@ function DesktopMenuGroup({ group }: { group: (typeof NAV_GROUPS)[0] }) {
   );
 }
 
-// ——— MAIN NAVIGATION ———
+// ——— MOBILE ———
+function MobileMenuItem({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="block py-2.5 text-base font-medium text-gray-900 transition hover:bg-gray-50 rounded-md px-2"
+    >
+      {children}
+    </Link>
+  );
+}
+
+function MobileSubmenu({
+  title,
+  items,
+  onItemClick,
+}: {
+  title: string;
+  items: { href: string; label: string }[];
+  onItemClick?: () => void;
+}) {
+  return (
+    <div className="border-b border-gray-100 pb-5 last:border-0 last:pb-0">
+      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">{title}</h3>
+      <div className="space-y-1">
+        {items.map((item) => (
+          <MobileMenuItem key={item.href} href={item.href} onClick={onItemClick}>
+            {item.label}
+          </MobileMenuItem>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function MainNav() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -150,21 +145,22 @@ export default function MainNav() {
     if (token) setIsLoggedIn(true);
   }, []);
 
+  // Tutup menu mobile setelah navigasi
+  const handleMobileNavClick = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
     <nav className="w-full border-b border-gray-200 bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-        {/* ——— LOGO ——— */}
         <Link href="/" className="flex items-center">
           <img src="/next.svg" alt="SecureRemote" className="h-8 w-auto" />
         </Link>
 
-        {/* ——— DESKTOP MENU ——— */}
         <div className="hidden md:flex items-center gap-5">
           {NAV_GROUPS.map((group) => (
             <DesktopMenuGroup key={group.title} group={group} />
           ))}
-
-          {/* ——— LOGIN / ADMIN STATUS ——— */}
           {isLoggedIn ? (
             <span className="text-sm font-medium text-gray-800">👤 Admin</span>
           ) : (
@@ -177,7 +173,6 @@ export default function MainNav() {
           )}
         </div>
 
-        {/* ——— MOBILE MENU TRIGGER ——— */}
         <div className="md:hidden">
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -188,35 +183,40 @@ export default function MainNav() {
             </SheetTrigger>
             <SheetContent
               side="left"
-              className="w-[300px] sm:w-[340px] p-5 bg-white border-r border-gray-200 shadow-xl"
+              className="flex flex-col w-[300px] sm:w-[340px] p-0 bg-white border-r border-gray-200 shadow-xl"
             >
-              <SheetHeader className="mb-6">
-                <SheetTitle className="text-lg font-bold text-gray-900">Navigation</SheetTitle>
+              {/* Header */}
+              <SheetHeader className="p-5 pb-4 border-b border-gray-100">
+                <SheetTitle className="text-lg font-bold text-gray-900">Menu</SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-5">
-                {NAV_GROUPS.map((group) => (
-                  <MobileSubmenu
-                    key={group.title}
-                    title={group.title}
-                    items={group.items}
-                    onItemClick={() => setMobileMenuOpen(false)}
-                  />
-                ))}
 
-                {/* ——— LOGIN / ADMIN DI MOBILE ——— */}
-                <div className="pt-4 mt-4 border-t border-gray-100">
-                  {isLoggedIn ? (
-                    <span className="block text-sm font-medium text-gray-800">👤 Admin</span>
-                  ) : (
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="inline-block py-2 px-3 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-md transition"
-                    >
-                      Login
-                    </Link>
-                  )}
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto max-h-[calc(100vh-140px)] p-5">
+                <div className="flex flex-col gap-5">
+                  {NAV_GROUPS.map((group) => (
+                    <MobileSubmenu
+                      key={group.title}
+                      title={group.title}
+                      items={group.items}
+                      onItemClick={handleMobileNavClick}
+                    />
+                  ))}
                 </div>
+              </div>
+
+              {/* Footer (Login/Admin) */}
+              <div className="p-5 border-t border-gray-100">
+                {isLoggedIn ? (
+                  <span className="block text-sm font-medium text-gray-800">👤 Admin</span>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={handleMobileNavClick}
+                    className="inline-block w-full py-2 text-center text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-md transition"
+                  >
+                    Login
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>
